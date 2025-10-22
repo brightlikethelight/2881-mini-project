@@ -1,9 +1,52 @@
+# Generated data and outputs
 **/out
 **/datastore
-**/data 
-# **/raw_data
+**/data
 **/eval_data
+**/downloads
+
+# Sensitive files
 **/keys
+
+# Wikipedia dumps
 **/wiki
-**/scripts
+
+# Python cache
 **/__pycache__
+**/*.pyc
+**/*.pyo
+**/*.pyd
+.Python
+
+# Virtual environments
+venv/
+env/
+ENV/
+.venv/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Logs
+*.log
+
+# Output files
+results_table.*
+*.csv
+
+# Keep raw_data but not individual txt files (too large for git)
+raw_data/**/*.txt
+raw_data/**/*.gz
+# But keep metadata
+!raw_data/**/metadata.json
