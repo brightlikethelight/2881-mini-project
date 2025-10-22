@@ -28,6 +28,7 @@ class LM(object):
                 top_p=llm_args.top_p,
                 top_k=llm_args.top_k,
                 num_beams=llm_args.num_beams,
+                repetition_penalty=llm_args.repetition_penalty,
                 eos_token_id=self.tokenizer.eos_token_id,
                 pad_token_id=self.tokenizer.pad_token_id if self.tokenizer.pad_token_id is not None else self.tokenizer.eos_token_id,
             )

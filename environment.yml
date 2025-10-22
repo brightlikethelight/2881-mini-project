@@ -1,0 +1,36 @@
+name: rag-privacy
+channels:
+  - pytorch
+  - nvidia
+  - conda-forge
+  - defaults
+
+dependencies:
+  # ================================
+  # Python Version
+  # ================================
+  - python=3.10
+
+  # ================================
+  # System Dependencies
+  # ================================
+  - openjdk=21  # Required for Pyserini
+  - mkl=2021    # Math Kernel Library
+
+  # ================================
+  # FAISS (GPU or CPU)
+  # ================================
+  # For GPU systems (recommended):
+  - faiss-gpu=1.7.4
+
+  # For CPU-only systems (uncomment and comment above):
+  # - faiss-cpu=1.7.4
+
+  # ================================
+  # Python Dependencies (via pip)
+  # ================================
+  # NOTE: PyTorch installed separately (see setup.sh)
+  # NOTE: Other Python packages in requirements.txt
+  - pip
+  - pip:
+      - -r requirements.txt
