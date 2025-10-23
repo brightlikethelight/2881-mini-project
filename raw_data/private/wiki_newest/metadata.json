@@ -1,0 +1,32 @@
+{
+  "dataset_name": "wikipedia_nov2023",
+  "source": "Unknown - pre-existing in repository",
+  "description": "Wikipedia articles for RAG copy-out experiment reproduction. Provenance uncertain - recommend regenerating with verified source.",
+  "num_articles": "~1000 (estimated from file size)",
+  "total_lines": 64632,
+  "file_size_bytes": 9863168,
+  "creation_date_filter": "Unknown - paper requires articles created after 2023-11-01",
+  "sha256": "593917364d1c51aae6cecd8121ef59ef36195d18ed72babb40bb844f3525f3b8",
+  "verification_status": "UNVERIFIED",
+  "verification_notes": [
+    "Dataset existed in repository prior to documentation",
+    "Cannot verify articles meet paper criteria (created after 2023-11-01)",
+    "File format appears correct (plain text, one article per file section)",
+    "SHA256 hash provided for reproducibility verification"
+  ],
+  "recommended_action": "For verified reproduction, use: python scripts/fetch_wikipedia.py --start_date 2023-11-01 --min_articles 1000 --max_articles 1500 --output_dir raw_data/private/wiki_newest",
+  "paper_requirements": {
+    "source": "Wikipedia Cirrus Search dumps",
+    "date_filter": "Articles created after 2023-11-01",
+    "article_count": "1000-1500 articles",
+    "namespace": 0,
+    "reference": "Section 4.1 of 'Follow My Instruction and Spill the Beans' (ICLR 2025)"
+  },
+  "usage": {
+    "datastore_construction": "Used by main.py --task io with --raw_data_dir raw_data/private/wiki_newest",
+    "bm25_indexing": "Pyserini indexes this corpus for retrieval",
+    "testing": "Use scripts/test_datastore.py to verify BM25 functionality"
+  },
+  "created_at": "2025-10-23",
+  "created_by": "Documentation script - added to existing dataset"
+}
