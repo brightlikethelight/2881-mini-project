@@ -69,11 +69,18 @@ class KNNWrapper(object):
         self.no_load_keys = no_load_keys
         self.recompute_dists = recompute_dists
         self.move_dstore_to_mem = move_dstore_to_mem
+        # FAISS GPU support only works with CUDA, not MPS
         self.knn_gpu = (
             knn_gpu and torch.cuda.is_available() and torch.cuda.device_count() > 0
         )
 
-        self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+        # Use best available device (CUDA > MPS > CPU)
+        if torch.cuda.is_available():
+            self.device = torch.device("cuda")
+        elif hasattr(torch.backends, "mps") and torch.backends.mps.is_available():
+            self.device = torch.device("mps")
+        else:
+            self.device = torch.device("cpu")
         self.prompt_input_ids = None
         self.keys = None
         self.values = None
@@ -378,7 +385,13 @@ class KNNSaver(object):
             KEY_TYPE.last_ffn_input if knn_keytype is None else knn_keytype
         )
 
-        self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+        # Use best available device (CUDA > MPS > CPU)
+        if torch.cuda.is_available():
+            self.device = torch.device("cuda")
+        elif hasattr(torch.backends, "mps") and torch.backends.mps.is_available():
+            self.device = torch.device("mps")
+        else:
+            self.device = torch.device("cpu")
 
         self.model = None
         self.activation_capturer = None

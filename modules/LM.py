@@ -1,4 +1,5 @@
 from modules.TogetherAI_API import chat_completion
+from utils.helpers import get_device
 
 import math
 import torch
@@ -14,10 +15,14 @@ class LM(object):
             self.model_name = llm_args.together_ckpt.split("/")[-1]
         else:
             self.model_name = llm_args.hf_ckpt.split("/")[-1]
-        
+
         if my_args.api == 'hf':
+            # Detect best available device (CUDA, MPS, or CPU)
+            self.device, self.device_name = get_device()
+            print(f"Using device: {self.device_name}")
+
             self.tokenizer = AutoTokenizer.from_pretrained(llm_args.hf_ckpt)
-            self.model = AutoModelForCausalLM.from_pretrained(llm_args.hf_ckpt, device_map='auto').cuda().eval()
+            self.model = AutoModelForCausalLM.from_pretrained(llm_args.hf_ckpt, device_map='auto').to(self.device).eval()
     
             self.model.resize_token_embeddings(len(self.tokenizer))
                 
@@ -58,13 +63,13 @@ class LM(object):
         
     def generate(self, lm_input: str, compute_generation_scores=False, compute_input_loss=False):
         """input a string, output a string"""
-        
+
         output_dict = dict()
-        
+
         if self.api == 'hf':
-            assert torch.cuda.is_available(), "CUDA is not available???"
+            # Use device-agnostic code - no assertion needed
             inputs = self.tokenizer(lm_input, return_tensors="pt")
-            input_ids = inputs["input_ids"].cuda()  #! [1, *]
+            input_ids = inputs["input_ids"].to(self.device)  #! [1, *]
             assert input_ids.ndim == 2 and input_ids.shape[0] == 1
             
             with torch.no_grad():

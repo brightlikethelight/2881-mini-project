@@ -1,13 +1,6 @@
 #
-# Core dependencies for RAG copy-out experiment
+# macOS-specific requirements (without nmslib)
 # For ICLR 2025: "Follow My Instruction and Spill the Beans"
-# https://arxiv.org/abs/2402.17840
-#
-# Generated: 2025-10-21
-# Python: 3.10+
-#
-# IMPORTANT: Install PyTorch separately (see setup.sh or README.md)
-# IMPORTANT: Install FAISS & Java via conda (see environment.yml)
 #
 
 # ================================
@@ -19,12 +12,6 @@ accelerate==0.25.0
 tokenizers==0.15.0
 huggingface-hub==0.20.2
 safetensors==0.4.1
-
-# ================================
-# Retrieval & Indexing
-# ================================
-# NOTE: Pyserini requires Java 21 (install via conda)
-pyserini==0.23.0
 
 # ================================
 # Evaluation Metrics
@@ -60,7 +47,7 @@ charset-normalizer==3.3.2
 click==8.1.7
 dill==0.3.7
 docker-pycreds==0.4.0
-fsspec==2023.10.0
+fsspec>=2023.10.0
 gitdb==4.0.11
 gitpython==3.1.40
 idna==3.6

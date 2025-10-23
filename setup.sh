@@ -150,7 +150,38 @@ print_msg "$GREEN" "✓ PyTorch installed"
 # Step 6: Install Python dependencies
 print_header "[6/7] Installing Python Dependencies"
 
-if [ -f "requirements.txt" ]; then
+# On macOS, use special requirements file without nmslib
+if [[ "$OSTYPE" == "darwin"* ]] && [ -f "requirements-macos.txt" ]; then
+    print_msg "$YELLOW" "⚠ macOS detected: Using macOS-specific requirements (without nmslib)"
+    print_msg "$BLUE" "Installing from requirements-macos.txt..."
+    pip install -r requirements-macos.txt
+
+    # Install pyserini core components without optional dependencies
+    print_msg "$BLUE" "Installing pyserini (core only, without nmslib)..."
+    print_msg "$YELLOW" "  Note: nmslib will be skipped (it's optional and incompatible with Apple Silicon)"
+
+    # Install pyserini's known dependencies manually first
+    print_msg "$BLUE" "  Installing pyserini dependencies..."
+    pip install 'lightgbm>=2.3.1' 'Cython>=0.29.14' 'pybind11>=2.5.0' 'anserini==0.23.0' || true
+
+    # Now try to install pyserini, allowing nmslib to fail
+    print_msg "$BLUE" "  Attempting pyserini installation (nmslib failures are expected and OK)..."
+
+    # We'll continue even if nmslib fails
+    pip install --no-deps pyserini==0.23.0 2>&1 | grep -v "nmslib" || true
+
+    # Verify pyserini is importable
+    if python -c "import pyserini" 2>/dev/null; then
+        print_msg "$GREEN" "✓ pyserini installed successfully (without nmslib)"
+    else
+        print_msg "$RED" "✗ pyserini installation failed"
+        print_msg "$YELLOW" "  This is a known issue on macOS. You may need to:"
+        print_msg "$YELLOW" "  1. Skip pyserini and use only kNN-LM experiments"
+        print_msg "$YELLOW" "  2. Or manually compile nmslib with: CFLAGS=\"-mavx -DWARN(a)=(a)\" pip install nmslib"
+    fi
+    print_msg "$GREEN" "✓ Core dependencies installed (nmslib skipped on macOS)"
+
+elif [ -f "requirements.txt" ]; then
     print_msg "$BLUE" "Installing from requirements.txt..."
     pip install -r requirements.txt
     print_msg "$GREEN" "✓ Core dependencies installed"
