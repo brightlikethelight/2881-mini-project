@@ -12,6 +12,7 @@ accelerate==0.25.0
 tokenizers==0.15.0
 huggingface-hub==0.20.2
 safetensors==0.4.1
+spacy<3.8.0
 
 # ================================
 # Evaluation Metrics
