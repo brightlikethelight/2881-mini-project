@@ -28,6 +28,17 @@ def main(my_args, llm_args, ric_args, knn_args, training_args, data_args):
         io_results_dir = os.path.join(data_args.io_output_root, ric_lm.lm.model_name)
         os.makedirs(io_results_dir, exist_ok=True)
         js = read_json(data_args.io_input_path)
+
+        # Validate prompts file
+        if not js:
+            raise ValueError(f"No prompts found in {data_args.io_input_path}. File is empty or invalid.")
+        if not all("id" in item and "input" in item for item in js):
+            raise ValueError(
+                f"Invalid prompt format in {data_args.io_input_path}. "
+                f"Each entry must have 'id' and 'input' keys. "
+                f"Example: {{\"id\": 1, \"input\": \"Your prompt here\"}}"
+            )
+
         for dict_item in tqdm(js):
             if str(dict_item["id"]) + ".json" in os.listdir(io_results_dir):
                 continue
