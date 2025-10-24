@@ -180,7 +180,11 @@ python scripts/fetch_wikipedia.py \
 **Time**: 2-3 hours (1-2 hour download + 30-60 min processing)
 **Output**: `raw_data/wikipedia_nov2023/*.txt` + `metadata.json`
 
-**Note**: Pre-existing dataset available at `raw_data/private/wiki_newest/` (unverified).
+> ⚠️ **IMPORTANT: Dataset Verification**
+> A pre-existing dataset is available at `raw_data/private/wiki_newest/`, but its **provenance is UNVERIFIED**.
+> We cannot confirm these articles meet the paper's criteria (created after 2023-11-01).
+> **For verified reproduction**, regenerate the dataset using the command above.
+> See `raw_data/private/wiki_newest/metadata.json` for SHA256 hash and details.
 
 #### 2. **Generate Attack Prompts**
 
