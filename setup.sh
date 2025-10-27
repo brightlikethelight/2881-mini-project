@@ -47,6 +47,19 @@ print_msg "$GREEN" "✓ Conda found: $(conda --version)"
 PYTHON_VERSION=$(python --version 2>&1 | awk '{print $2}' | cut -d. -f1,2)
 print_msg "$GREEN" "✓ Python found: $(python --version)"
 
+# Detect platform
+PLATFORM=$(uname -s)
+ARCH=$(uname -m)
+print_msg "$GREEN" "✓ Platform: $PLATFORM $ARCH"
+
+# Detect if Apple Silicon Mac
+if [[ "$PLATFORM" == "Darwin" ]] && [[ "$ARCH" == "arm64" ]]; then
+    IS_APPLE_SILICON=true
+    print_msg "$YELLOW" "  Detected Apple Silicon Mac - will use CPU-optimized setup"
+else
+    IS_APPLE_SILICON=false
+fi
+
 # Step 2: Check if environment already exists
 print_header "[2/7] Checking Environment"
 
@@ -72,13 +85,31 @@ fi
 if [ "$SKIP_ENV_CREATION" != "true" ]; then
     print_header "[3/7] Creating Conda Environment"
 
-    if [ -f "environment.yml" ]; then
-        print_msg "$BLUE" "Using environment.yml..."
+    # Apple Silicon Macs need special handling
+    if [ "$IS_APPLE_SILICON" = "true" ]; then
+        print_msg "$YELLOW" "Apple Silicon detected - creating CPU-optimized environment..."
+        print_msg "$BLUE" "Creating base environment..."
+        conda create -n "$ENV_NAME" python=3.10 -y
+
+        print_msg "$BLUE" "Activating environment..."
+        eval "$(conda shell.bash hook)"
+        conda activate "$ENV_NAME"
+
+        print_msg "$BLUE" "Installing Java (required for Pyserini)..."
+        conda install -c conda-forge openjdk=21 -y
+
+        print_msg "$BLUE" "Installing FAISS (CPU version for Apple Silicon)..."
+        conda install -c pytorch faiss-cpu -y
+
+    elif [ -f "environment.yml" ]; then
+        print_msg "$BLUE" "Using environment.yml (Linux/Windows with GPU support)..."
         conda env create -f environment.yml
     else
         print_msg "$BLUE" "Creating environment manually..."
         conda create -n "$ENV_NAME" python=3.10 -y
-        conda activate "$ENV_NAME" || source "$(conda info --base)/etc/profile.d/conda.sh" && conda activate "$ENV_NAME"
+
+        eval "$(conda shell.bash hook)"
+        conda activate "$ENV_NAME"
 
         # Install system dependencies
         print_msg "$BLUE" "Installing Java and FAISS..."
@@ -125,27 +156,35 @@ fi
 # Step 5: Install PyTorch
 print_header "[5/7] Installing PyTorch"
 
-# Detect CUDA
-HAS_CUDA=false
-if command -v nvidia-smi &> /dev/null; then
-    if nvidia-smi &> /dev/null; then
-        HAS_CUDA=true
-        GPU_INFO=$(nvidia-smi --query-gpu=name --format=csv,noheader | head -1)
-        print_msg "$GREEN" "✓ GPU detected: $GPU_INFO"
-    fi
-fi
+# Apple Silicon Macs use default PyTorch (includes Metal acceleration)
+if [ "$IS_APPLE_SILICON" = "true" ]; then
+    print_msg "$BLUE" "Installing PyTorch for Apple Silicon (with Metal acceleration)..."
+    pip install torch torchvision torchaudio
+    print_msg "$GREEN" "✓ PyTorch installed with Apple Metal backend"
 
-if [ "$HAS_CUDA" = true ]; then
-    print_msg "$BLUE" "Installing PyTorch with CUDA 12.1..."
-    pip install torch==2.1.2 torchvision==0.16.2 torchaudio==2.1.2 \
-        --index-url https://download.pytorch.org/whl/cu121
 else
-    print_msg "$YELLOW" "No GPU detected, installing CPU-only PyTorch..."
-    pip install torch==2.1.2 torchvision==0.16.2 torchaudio==2.1.2 \
-        --index-url https://download.pytorch.org/whl/cpu
-fi
+    # Detect CUDA for Linux/Windows
+    HAS_CUDA=false
+    if command -v nvidia-smi &> /dev/null; then
+        if nvidia-smi &> /dev/null; then
+            HAS_CUDA=true
+            GPU_INFO=$(nvidia-smi --query-gpu=name --format=csv,noheader | head -1)
+            print_msg "$GREEN" "✓ GPU detected: $GPU_INFO"
+        fi
+    fi
 
-print_msg "$GREEN" "✓ PyTorch installed"
+    if [ "$HAS_CUDA" = true ]; then
+        print_msg "$BLUE" "Installing PyTorch with CUDA 12.1..."
+        pip install torch==2.1.2 torchvision==0.16.2 torchaudio==2.1.2 \
+            --index-url https://download.pytorch.org/whl/cu121
+    else
+        print_msg "$YELLOW" "No GPU detected, installing CPU-only PyTorch..."
+        pip install torch==2.1.2 torchvision==0.16.2 torchaudio==2.1.2 \
+            --index-url https://download.pytorch.org/whl/cpu
+    fi
+
+    print_msg "$GREEN" "✓ PyTorch installed"
+fi
 
 # Step 6: Install Python dependencies
 print_header "[6/7] Installing Python Dependencies"
