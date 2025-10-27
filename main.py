@@ -32,7 +32,14 @@ def main(my_args, llm_args, ric_args, knn_args, training_args, data_args):
         pass
     elif my_args.task == "io":
         assert my_args.api is not None
-        assert llm_args.hf_ckpt is not None
+        if my_args.api == "together":
+            assert llm_args.together_ckpt is not None
+            # For Together API, hf_ckpt is still needed for the tokenizer
+            # If not provided, use the same model name from together_ckpt
+            if llm_args.hf_ckpt is None:
+                llm_args.hf_ckpt = llm_args.together_ckpt
+        else:
+            assert llm_args.hf_ckpt is not None
         assert llm_args.is_chat_model is not None
         assert data_args.io_input_path is not None
         assert data_args.io_output_root is not None
@@ -58,9 +65,26 @@ def main(my_args, llm_args, ric_args, knn_args, training_args, data_args):
         for model_name in tqdm(os.listdir(data_args.eval_input_dir)):
             if os.path.exists(os.path.join(data_args.eval_output_dir, model_name + ".json")):
                 continue
-            json_files = [os.path.join(data_args.eval_input_dir, model_name, f) 
-                        for f in os.listdir(os.path.join(data_args.eval_input_dir, model_name)) 
-                        if f.endswith(".json")]
+            
+            # Handle nested directory structure: model_name/model_name/*.json
+            model_dir = os.path.join(data_args.eval_input_dir, model_name)
+            if os.path.isdir(model_dir):
+                # Check if there's a subdirectory with the same or similar name
+                subdirs = [d for d in os.listdir(model_dir) if os.path.isdir(os.path.join(model_dir, d))]
+                if subdirs:
+                    # Use the first subdirectory found
+                    actual_model_dir = os.path.join(model_dir, subdirs[0])
+                    json_files = [os.path.join(actual_model_dir, f) 
+                                for f in os.listdir(actual_model_dir) 
+                                if f.endswith(".json")]
+                else:
+                    # No subdirectory, files directly in model_dir
+                    json_files = [os.path.join(model_dir, f) 
+                                for f in os.listdir(model_dir) 
+                                if f.endswith(".json")]
+            else:
+                continue
+            
             predictions_str, references_str = [], []
             for json_file in json_files:
                 with open(json_file, "r") as f:

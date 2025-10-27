@@ -1,0 +1,42 @@
+WARNING: Using incubator modules: jdk.incubator.vector
+WARNING: Using incubator modules: jdk.incubator.vector
+/opt/anaconda3/lib/python3.12/site-packages/pydantic/_internal/_generate_schema.py:2249: UnsupportedFieldAttributeWarning: The 'repr' attribute with value False was provided to the `Field()` function, which has no effect in the context it was used. 'repr' is field-specific metadata, and can only be attached to a model field using `Annotated` metadata or by assignment. This may have happened because an `Annotated` type alias using the `type` statement was used, or if the `Field()` function was attached to a single member of a union type.
+  warnings.warn(
+/opt/anaconda3/lib/python3.12/site-packages/pydantic/_internal/_generate_schema.py:2249: UnsupportedFieldAttributeWarning: The 'repr' attribute with value False was provided to the `Field()` function, which has no effect in the context it was used. 'repr' is field-specific metadata, and can only be attached to a model field using `Annotated` metadata or by assignment. This may have happened because an `Annotated` type alias using the `type` statement was used, or if the `Field()` function was attached to a single member of a union type.
+  warnings.warn(
+/opt/anaconda3/lib/python3.12/site-packages/pydantic/_internal/_generate_schema.py:2249: UnsupportedFieldAttributeWarning: The 'frozen' attribute with value True was provided to the `Field()` function, which has no effect in the context it was used. 'frozen' is field-specific metadata, and can only be attached to a model field using `Annotated` metadata or by assignment. This may have happened because an `Annotated` type alias using the `type` statement was used, or if the `Field()` function was attached to a single member of a union type.
+  warnings.warn(
+/opt/anaconda3/lib/python3.12/site-packages/pydantic/_internal/_generate_schema.py:2249: UnsupportedFieldAttributeWarning: The 'frozen' attribute with value True was provided to the `Field()` function, which has no effect in the context it was used. 'frozen' is field-specific metadata, and can only be attached to a model field using `Annotated` metadata or by assignment. This may have happened because an `Annotated` type alias using the `type` statement was used, or if the `Field()` function was attached to a single member of a union type.
+  warnings.warn(
+
+2025-10-27 16:31:44,706 - evaluate.loading - WARNING - Using the latest cached version of the module from /Users/natalia_mac/.cache/huggingface/modules/evaluate_modules/metrics/evaluate-metric--rouge/b01e0accf3bd6dd24839b769a5fda24e14995071570870922c71970b3a6ed886 (last modified on Sun Oct 26 21:17:13 2025) since it couldn't be found locally at evaluate-metric--rouge, or remotely on the Hugging Face Hub.
+
+2025-10-27 16:31:44,706 - evaluate.loading - WARNING - Using the latest cached version of the module from /Users/natalia_mac/.cache/huggingface/modules/evaluate_modules/metrics/evaluate-metric--rouge/b01e0accf3bd6dd24839b769a5fda24e14995071570870922c71970b3a6ed886 (last modified on Sun Oct 26 21:17:13 2025) since it couldn't be found locally at evaluate-metric--rouge, or remotely on the Hugging Face Hub.
+
+2025-10-27 16:31:44,810 - evaluate.loading - WARNING - Using the latest cached version of the module from /Users/natalia_mac/.cache/huggingface/modules/evaluate_modules/metrics/evaluate-metric--sacrebleu/28676bf65b4f88b276df566e48e603732d0b4afd237603ebdf92acaacf5be99b (last modified on Sun Oct 26 21:17:14 2025) since it couldn't be found locally at evaluate-metric--sacrebleu, or remotely on the Hugging Face Hub.
+
+2025-10-27 16:31:44,810 - evaluate.loading - WARNING - Using the latest cached version of the module from /Users/natalia_mac/.cache/huggingface/modules/evaluate_modules/metrics/evaluate-metric--sacrebleu/28676bf65b4f88b276df566e48e603732d0b4afd237603ebdf92acaacf5be99b (last modified on Sun Oct 26 21:17:14 2025) since it couldn't be found locally at evaluate-metric--sacrebleu, or remotely on the Hugging Face Hub.
+
+2025-10-27 16:31:44,941 - evaluate.loading - WARNING - Using the latest cached version of the module from /Users/natalia_mac/.cache/huggingface/modules/evaluate_modules/metrics/evaluate-metric--bertscore/cf4907b18f8f741f202232c0f8009a3bd49ff98802c245abcb6ea51a37a8c05b (last modified on Sun Oct 26 21:17:14 2025) since it couldn't be found locally at evaluate-metric--bertscore, or remotely on the Hugging Face Hub.
+
+2025-10-27 16:31:44,941 - evaluate.loading - WARNING - Using the latest cached version of the module from /Users/natalia_mac/.cache/huggingface/modules/evaluate_modules/metrics/evaluate-metric--bertscore/cf4907b18f8f741f202232c0f8009a3bd49ff98802c245abcb6ea51a37a8c05b (last modified on Sun Oct 26 21:17:14 2025) since it couldn't be found locally at evaluate-metric--bertscore, or remotely on the Hugging Face Hub.
+Traceback (most recent call last):
+Traceback (most recent call last):
+  File "/Users/natalia_mac/project_new/2881-mini-project/main.py", line 105, in <module>
+  File "/Users/natalia_mac/project_new/2881-mini-project/main.py", line 105, in <module>
+    my_args, llm_args, ric_args, knn_args, training_args, data_args = get_args()
+    my_args, llm_args, ric_args, knn_args, training_args, data_args = get_args()
+                                                                      ^^^^^^^^^^
+  File "/Users/natalia_mac/project_new/2881-mini-project/utils/argparser.py", line 79, in get_args
+                                                                      ^^^^^^^^^^
+  File "/Users/natalia_mac/project_new/2881-mini-project/utils/argparser.py", line 79, in get_args
+    ) = parser.parse_args_into_dataclasses()
+    ) = parser.parse_args_into_dataclasses()
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.12/site-packages/transformers/hf_argparser.py", line 367, in parse_args_into_dataclasses
+  File "/opt/anaconda3/lib/python3.12/site-packages/transformers/hf_argparser.py", line 367, in parse_args_into_dataclasses
+    raise ValueError(f"Some specified arguments are not used by the HfArgumentParser: {remaining_args}")
+    raise ValueError(f"Some specified arguments are not used by the HfArgumentParser: {remaining_args}")
+ValueError: Some specified arguments are not used by the HfArgumentParser: ['tee', 'spanish_on_english_wiki.log']
+ValueError: Some specified arguments are not used by the HfArgumentParser: ['tee', 'spanish_on_english_wiki.log']
