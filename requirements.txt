@@ -60,7 +60,7 @@ charset-normalizer==3.3.2
 click==8.1.7
 dill==0.3.7
 docker-pycreds==0.4.0
-fsspec==2024.6.1
+fsspec==2023.10.0
 gitdb==4.0.11
 gitpython==3.1.40
 idna==3.6
