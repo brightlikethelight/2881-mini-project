@@ -22,7 +22,7 @@ class LM(object):
             print(f"Using device: {self.device_name}")
 
             self.tokenizer = AutoTokenizer.from_pretrained(llm_args.hf_ckpt)
-            self.model = AutoModelForCausalLM.from_pretrained(llm_args.hf_ckpt, device_map='auto').to(self.device).eval()
+            self.model = AutoModelForCausalLM.from_pretrained(llm_args.hf_ckpt, device_map='auto').eval()
     
             self.model.resize_token_embeddings(len(self.tokenizer))
                 
@@ -67,9 +67,10 @@ class LM(object):
         output_dict = dict()
 
         if self.api == 'hf':
-            # Use device-agnostic code - no assertion needed
+            # Use device from model instead of hardcoded CUDA
+            device = next(self.model.parameters()).device
             inputs = self.tokenizer(lm_input, return_tensors="pt")
-            input_ids = inputs["input_ids"].to(self.device)  #! [1, *]
+            input_ids = inputs["input_ids"].to(device)  #! [1, *]
             assert input_ids.ndim == 2 and input_ids.shape[0] == 1
             
             with torch.no_grad():
