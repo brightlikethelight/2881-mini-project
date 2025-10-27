@@ -20,6 +20,8 @@ class Evaluator:
         self.predictions_str = predictions_str
         self.references_str = references_str
         self.language = language
+        # Use multilingual BERT for Spanish and code-switch experiments
+        self.bert_model = "bert-base-multilingual-cased" if language == "es" else None
 
     def compute_metrics(self):
         return self._text_comparison_metrics()
@@ -117,9 +119,15 @@ class Evaluator:
         rouge_results = self.metric_rouge.compute(
             predictions=self.predictions_str, references=self.references_str, use_aggregator=False
         )
-        bertscore_results = self.metric_bertscore.compute(
-            predictions=self.predictions_str, references=self.references_str, lang=self.language
-        )
+        # For Spanish, explicitly use multilingual BERT model
+        bertscore_kwargs = {
+            "predictions": self.predictions_str,
+            "references": self.references_str,
+            "lang": self.language
+        }
+        if self.bert_model:
+            bertscore_kwargs["model_type"] = self.bert_model
+        bertscore_results = self.metric_bertscore.compute(**bertscore_kwargs)
         exact_matches = np.array(self.predictions_str) == np.array(self.references_str)
         gen_metrics = {
             "bleu_score": mean(bleu_results),

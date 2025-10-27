@@ -80,8 +80,10 @@ def chat_completion(prompt, model_ckpt, system_prompt: str = "You are a helpful 
                 stop=stop,
             )
             break
-        except:
-            print("Together AI API failed. Retrying...")
+        except Exception as e:
+            print(f"Together AI API failed: {str(e)}")
+            print(f"Model: {model_ckpt}")
+            print("Retrying...")
 
     return response.choices[0].message.content
 

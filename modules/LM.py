@@ -1,6 +1,7 @@
 from modules.TogetherAI_API import chat_completion
 
 import math
+import os
 import torch
 from torch.nn import CrossEntropyLoss
 from transformers import GenerationConfig, AutoTokenizer, AutoModelForCausalLM, LlamaTokenizer, LlamaForCausalLM, pipeline
@@ -37,9 +38,25 @@ class LM(object):
         elif my_args.api == 'together':
             assert llm_args.together_ckpt is not None
             support = ['llama', 'falcon', 'alpaca', 'vicuna', 'mistral', 'mixtral', 'solar', 'yi', 'platypus', 'capybara', 'wizardlm', 'qwen']
-            assert any((s in llm_args.hf_ckpt.lower() and s in llm_args.together_ckpt.lower()) for s in support)
             
-            self.tokenizer = AutoTokenizer.from_pretrained(llm_args.hf_ckpt)
+            # For tokenizer, use a compatible HF model if the HF model name doesn't exist
+            # This handles cases where Together AI has a model but HF doesn't have the exact match
+            try:
+                self.tokenizer = AutoTokenizer.from_pretrained(llm_args.hf_ckpt)
+            except:
+                # If HF model doesn't exist, try to use Llama 3 tokenizer for Llama 3 models
+                if 'llama-3.1' in llm_args.together_ckpt.lower():
+                    print(f"Warning: HF model {llm_args.hf_ckpt} not found. Using meta-llama/Llama-3.1-8B-Instruct tokenizer instead.")
+                    try:
+                        self.tokenizer = AutoTokenizer.from_pretrained('meta-llama/Llama-3.1-8B-Instruct', token=os.getenv('HF_TOKEN'))
+                    except:
+                        print("Using Llama-2 tokenizer as fallback")
+                        self.tokenizer = AutoTokenizer.from_pretrained('meta-llama/Llama-2-7b-chat-hf', token=os.getenv('HF_TOKEN'))
+                elif 'llama' in llm_args.together_ckpt.lower():
+                    print(f"Warning: HF model {llm_args.hf_ckpt} not found. Using Llama-2 tokenizer instead.")
+                    self.tokenizer = AutoTokenizer.from_pretrained('meta-llama/Llama-2-7b-chat-hf', token=os.getenv('HF_TOKEN'))
+                else:
+                    raise ValueError(f"Could not find a compatible tokenizer for {llm_args.together_ckpt}")
             
             self.generation_config = {
                 "model_ckpt": llm_args.together_ckpt,
