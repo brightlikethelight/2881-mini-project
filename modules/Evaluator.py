@@ -13,12 +13,13 @@ bertscore = load("bertscore")
 
 
 class Evaluator:
-    def __init__(self, predictions_str: List[str], references_str: List[str]) -> None:
+    def __init__(self, predictions_str: List[str], references_str: List[str], language: str = "en") -> None:
         self.metric_rouge = rouge
         self.metric_bleu = sacrebleu
         self.metric_bertscore = bertscore
         self.predictions_str = predictions_str
         self.references_str = references_str
+        self.language = language
 
     def compute_metrics(self):
         return self._text_comparison_metrics()
@@ -117,7 +118,7 @@ class Evaluator:
             predictions=self.predictions_str, references=self.references_str, use_aggregator=False
         )
         bertscore_results = self.metric_bertscore.compute(
-            predictions=self.predictions_str, references=self.references_str, lang="en"
+            predictions=self.predictions_str, references=self.references_str, lang=self.language
         )
         exact_matches = np.array(self.predictions_str) == np.array(self.references_str)
         gen_metrics = {

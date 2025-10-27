@@ -8,7 +8,21 @@ import os
 import json
 from tqdm import tqdm
 import warnings
+import re
 warnings.filterwarnings("ignore")
+
+
+def detect_language_from_model_name(model_name: str) -> str:
+    """Detect language from model name or experiment directory structure."""
+    # Check if it's a Spanish experiment
+    if "_spanish" in model_name or "spanish" in model_name.lower():
+        return "es"
+    # Check if it's a code-switch experiment
+    elif "_codeswitch" in model_name or "codeswitch" in model_name.lower():
+        return "es"  # Use Spanish for code-switch BERTScore
+    # Default to English
+    else:
+        return "en"
 
 
 def main(my_args, llm_args, ric_args, knn_args, training_args, data_args):
@@ -53,7 +67,9 @@ def main(my_args, llm_args, ric_args, knn_args, training_args, data_args):
                     js = json.load(f)
                 predictions_str.append(js["lm_output"])
                 references_str.append(js["retrieved_docs_str"])
-            evaluator = Evaluator(predictions_str=predictions_str, references_str=references_str)
+            # Detect language from model name for BERTScore
+            language = detect_language_from_model_name(model_name)
+            evaluator = Evaluator(predictions_str=predictions_str, references_str=references_str, language=language)
             metrics = evaluator.compute_metrics()
             with open(os.path.join(data_args.eval_output_dir, model_name + ".json"), "w") as f:
                 json.dump(metrics, f, indent=4)
