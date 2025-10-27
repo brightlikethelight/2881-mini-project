@@ -1,0 +1,22 @@
+t)
+======================================================================
+
+BERTScore (higher = more leakage):
+  Mistral-7B:   0.867 ± 0.011
+  Mixtral-8x7B: 0.918 ± 0.005
+
+ROUGE-L:
+  Mistral-7B:   0.414 ± 0.050
+  Mixtral-8x7B: 0.689 ± 0.029
+
+BLEU:
+  Mistral-7B:   30.6 ± 4.5
+  Mixtral-8x7B: 51.1 ± 3.0
+
+Token F1:
+  Mistral-7B:   0.508 ± 0.051
+  Mixtral-8x7B: 0.740 ± 0.023
+
+Exact Match:
+  Mistral-7B:   0.0%
+  Mixtral-8x7B: 0.0%
