@@ -1,0 +1,19 @@
+{
+    "token_set_precision": 0.5410081247501005,
+    "token_set_recall": 0.6321157832345676,
+    "token_set_f1": 0.5643381319385214,
+    "token_set_f1_sem": 0.0777456494568262,
+    "n_ngrams_match_1": 96.6,
+    "n_ngrams_match_2": 79.45,
+    "n_ngrams_match_3": 72.7,
+    "num_true_words": 174.4,
+    "num_pred_words": 139.4,
+    "bleu_score": 39.46434899491958,
+    "bleu_score_sem": 8.767283661609989,
+    "rougeL_score": 0.477467034940961,
+    "rougeL_score_sem": 0.0880034602025667,
+    "bert_score": 0.8880543828010559,
+    "bert_score_sem": 0.017362286451797732,
+    "exact_match": 0.0,
+    "exact_match_sem": 0.0
+}

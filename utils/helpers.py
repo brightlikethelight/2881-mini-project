@@ -8,16 +8,49 @@ from datetime import datetime
 from typing import Tuple, List
 
 
+def get_device():
+    """
+    Detect and return the best available device for PyTorch.
+    Priority: CUDA (NVIDIA GPU) > MPS (Apple Silicon GPU) > CPU
+
+    Returns:
+        torch.device: The best available device
+        str: Device name for logging ("cuda", "mps", or "cpu")
+    """
+    if torch.cuda.is_available():
+        device = torch.device("cuda")
+        device_name = "cuda"
+    elif hasattr(torch.backends, "mps") and torch.backends.mps.is_available():
+        device = torch.device("mps")
+        device_name = "mps"
+    else:
+        device = torch.device("cpu")
+        device_name = "cpu"
+
+    return device, device_name
+
+
 def fix_seeds(seed):
+    """
+    Fix random seeds for reproducibility across different backends.
+    Supports CUDA, MPS (Apple Silicon), and CPU.
+    """
     # random
     random.seed(seed)
     # Numpy
     np.random.seed(seed)
     # Pytorch
     torch.manual_seed(seed)
-    torch.cuda.manual_seed_all(seed)
-    torch.backends.cudnn.deterministic = True
-    torch.backends.cudnn.benchmark = False
+
+    # CUDA-specific seeds
+    if torch.cuda.is_available():
+        torch.cuda.manual_seed_all(seed)
+        torch.backends.cudnn.deterministic = True
+        torch.backends.cudnn.benchmark = False
+
+    # MPS-specific seeds (Apple Silicon)
+    if hasattr(torch.backends, "mps") and torch.backends.mps.is_available():
+        torch.mps.manual_seed(seed)
 
 
 def setup_logging(log_root, log_header, dataset_name, model_ckpt, note):

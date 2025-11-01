@@ -8,7 +8,21 @@ import os
 import json
 from tqdm import tqdm
 import warnings
+import re
 warnings.filterwarnings("ignore")
+
+
+def detect_language_from_model_name(model_name: str) -> str:
+    """Detect language from model name or experiment directory structure."""
+    # Check if it's a Spanish experiment
+    if "_spanish" in model_name or "spanish" in model_name.lower():
+        return "es"
+    # Check if it's a code-switch experiment
+    elif "_codeswitch" in model_name or "codeswitch" in model_name.lower():
+        return "es"  # Use Spanish for code-switch BERTScore
+    # Default to English
+    else:
+        return "en"
 
 
 def main(my_args, llm_args, ric_args, knn_args, training_args, data_args):
@@ -42,12 +56,14 @@ def main(my_args, llm_args, ric_args, knn_args, training_args, data_args):
         for dict_item in tqdm(js):
             if str(dict_item["id"]) + ".json" in os.listdir(io_results_dir):
                 continue
+            print(f"Processing query {dict_item['id']}...")
             response = ric_lm.generate(query=dict_item["input"])
             lm_output = response["lm_output"]
             retrieved_docs_str = response["retrieved_docs_str"]
             file_to_save = os.path.join(io_results_dir, str(dict_item["id"]) + ".json")
             with open(file_to_save, "w") as f:
                 json.dump({"lm_output": lm_output, "retrieved_docs_str": retrieved_docs_str}, f, indent=4)
+            print(f"✓ Completed query {dict_item['id']}")
     elif my_args.task == "eval":
         assert data_args.eval_input_dir is not None
         assert data_args.eval_output_dir is not None
@@ -64,7 +80,9 @@ def main(my_args, llm_args, ric_args, knn_args, training_args, data_args):
                     js = json.load(f)
                 predictions_str.append(js["lm_output"])
                 references_str.append(js["retrieved_docs_str"])
-            evaluator = Evaluator(predictions_str=predictions_str, references_str=references_str)
+            # Detect language from model name for BERTScore
+            language = detect_language_from_model_name(model_name)
+            evaluator = Evaluator(predictions_str=predictions_str, references_str=references_str, language=language)
             metrics = evaluator.compute_metrics()
             with open(os.path.join(data_args.eval_output_dir, model_name + ".json"), "w") as f:
                 json.dump(metrics, f, indent=4)

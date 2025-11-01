@@ -1,4 +1,4 @@
-export LD_LIBRARY_PATH="/.../.../conda/envs/rag/lib"  # path to your env's lib; for JAVA and pyserini
+# export LD_LIBRARY_PATH="/.../.../conda/envs/rag/lib"  # path to your env's lib; for JAVA and pyserini
 
 API=together
 HF_MODEL=meta-llama/Llama-2-7b-chat-hf          # model id of huggingface

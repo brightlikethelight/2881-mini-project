@@ -1,4 +1,5 @@
 from modules.TogetherAI_API import chat_completion
+from utils.helpers import get_device
 
 import math
 import torch
@@ -14,10 +15,13 @@ class LM(object):
             self.model_name = llm_args.together_ckpt.split("/")[-1]
         else:
             self.model_name = llm_args.hf_ckpt.split("/")[-1]
-        
+
         if my_args.api == 'hf':
-            self.tokenizer = AutoTokenizer.from_pretrained(llm_args.hf_ckpt)
-            # device_map='auto' handles CPU/GPU placement automatically
+            # Detect best available device (CUDA, MPS, or CPU)
+            self.device, self.device_name = get_device()
+            print(f"Using device: {self.device_name}")
+
+            self.tokenizer = AutoTokenizer.from_pretrained(llm_args.hf_ckpt, use_fast=False)
             self.model = AutoModelForCausalLM.from_pretrained(llm_args.hf_ckpt, device_map='auto').eval()
     
             self.model.resize_token_embeddings(len(self.tokenizer))
@@ -39,8 +43,8 @@ class LM(object):
             assert llm_args.together_ckpt is not None
             support = ['llama', 'falcon', 'alpaca', 'vicuna', 'mistral', 'mixtral', 'solar', 'yi', 'platypus', 'capybara', 'wizardlm', 'qwen']
             assert any((s in llm_args.hf_ckpt.lower() and s in llm_args.together_ckpt.lower()) for s in support)
-            
-            self.tokenizer = AutoTokenizer.from_pretrained(llm_args.hf_ckpt)
+
+            self.tokenizer = AutoTokenizer.from_pretrained(llm_args.hf_ckpt, use_fast=False)
             
             self.generation_config = {
                 "model_ckpt": llm_args.together_ckpt,
@@ -59,13 +63,14 @@ class LM(object):
         
     def generate(self, lm_input: str, compute_generation_scores=False, compute_input_loss=False):
         """input a string, output a string"""
-        
+
         output_dict = dict()
-        
+
         if self.api == 'hf':
+            # Use device from model instead of hardcoded CUDA
+            device = next(self.model.parameters()).device
             inputs = self.tokenizer(lm_input, return_tensors="pt")
-            # Use model's device (works for both CPU and GPU)
-            input_ids = inputs["input_ids"].to(self.model.device)  #! [1, *]
+            input_ids = inputs["input_ids"].to(device)  #! [1, *]
             assert input_ids.ndim == 2 and input_ids.shape[0] == 1
             
             with torch.no_grad():
