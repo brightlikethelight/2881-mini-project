@@ -1,13 +1,16 @@
 from typing import List, Dict
 import time, json, os, requests
+import random
 
 # Optional Together AI dependency - only fails if actually used
 try:
     from together import Together
+    import httpx
     TOGETHER_AVAILABLE = True
 except ImportError:
     TOGETHER_AVAILABLE = False
     Together = None
+    httpx = None
 
 
 keys = []       # Add your togetherAI API keys here
@@ -41,10 +44,19 @@ def _get_key():
     return key
 
 
-def text_completion(prompt, model_ckpt, max_tokens=256, temperature=0.8, top_k=40, top_p=0.95, repetition_penalty=1, stop=None):
-    while True:
+def _create_together_client_with_timeout():
+    """Create Together client with proper timeout configuration."""
+    # Together client accepts a simple float timeout (in seconds)
+    # This applies to the entire request (connect + read)
+    return Together(api_key=_get_key(), timeout=120.0)
+
+
+def text_completion(prompt, model_ckpt, max_tokens=256, temperature=0.8, top_k=40, top_p=0.95, repetition_penalty=1, stop=None, max_retries=10):
+    """Text completion with exponential backoff retry logic."""
+
+    for attempt in range(max_retries):
         try:
-            client = Together(api_key=_get_key())
+            client = _create_together_client_with_timeout()
             response = client.completions.create(
                 model=model_ckpt,
                 prompt=prompt,
@@ -55,17 +67,54 @@ def text_completion(prompt, model_ckpt, max_tokens=256, temperature=0.8, top_k=4
                 repetition_penalty=repetition_penalty,
                 stop=stop,
             )
-            break
-        except:
-            print("Together AI API failed. Retrying...")
-            
-    return response.choices[0].text
+            return response.choices[0].text
+
+        except Exception as e:
+            error_str = str(e).lower()
+
+            # Check if it's a timeout error
+            if "timeout" in error_str or "timed out" in error_str:
+                wait_time = (2 ** attempt) + (random.random() * 0.1)  # Exponential backoff with jitter
+                print(f"Together AI API timeout (attempt {attempt + 1}/{max_retries}). Retrying in {wait_time:.1f}s...")
+                if attempt < max_retries - 1:
+                    time.sleep(wait_time)
+                else:
+                    raise Exception(f"Together AI API timeout after {max_retries} attempts: {e}")
+
+            # Check if it's a rate limit error (HTTP 429)
+            elif "429" in error_str or "rate limit" in error_str:
+                wait_time = (2 ** attempt) * 2 + (random.random() * 0.5)  # Longer wait for rate limits
+                print(f"Together AI rate limit hit (attempt {attempt + 1}/{max_retries}). Waiting {wait_time:.1f}s...")
+                if attempt < max_retries - 1:
+                    time.sleep(wait_time)
+                else:
+                    raise Exception(f"Together AI rate limit persists after {max_retries} attempts: {e}")
+
+            # Check if it's a server error (503 overloaded, 500, 502, 504)
+            elif "503" in error_str or "500" in error_str or "502" in error_str or "504" in error_str or "overloaded" in error_str or "not ready" in error_str:
+                # Much longer wait for server errors: 10s, 20s, 40s, 60s, 90s, 120s, etc.
+                wait_time = min((2 ** attempt) * 10, 180) + (random.random() * 5.0)
+                print(f"Together AI server error (attempt {attempt + 1}/{max_retries}). Waiting {wait_time:.1f}s... Error: {e}")
+                if attempt < max_retries - 1:
+                    time.sleep(wait_time)
+                else:
+                    raise Exception(f"Together AI server unavailable after {max_retries} attempts: {e}")
+
+            else:
+                # Non-retryable error (e.g., invalid API key, bad model name)
+                print(f"Together AI non-retryable error: {e}")
+                raise
+
+    # Should never reach here, but just in case
+    raise Exception("text_completion failed to return a response")
 
 
-def chat_completion(prompt, model_ckpt, system_prompt: str = "You are a helpful AI assistant.", max_tokens=256, temperature=0.8, top_k=40, top_p=0.95, repetition_penalty=1, stop=None):
-    while True:
-        client = Together(api_key=_get_key())
+def chat_completion(prompt, model_ckpt, system_prompt: str = "You are a helpful AI assistant.", max_tokens=256, temperature=0.8, top_k=40, top_p=0.95, repetition_penalty=1, stop=None, max_retries=10):
+    """Chat completion with exponential backoff retry logic."""
+
+    for attempt in range(max_retries):
         try:
+            client = _create_together_client_with_timeout()
             response = client.chat.completions.create(
                 model=model_ckpt,
                 messages=[
@@ -79,11 +128,46 @@ def chat_completion(prompt, model_ckpt, system_prompt: str = "You are a helpful 
                 repetition_penalty=repetition_penalty,
                 stop=stop,
             )
-            break
-        except:
-            print("Together AI API failed. Retrying...")
+            return response.choices[0].message.content
 
-    return response.choices[0].message.content
+        except Exception as e:
+            error_str = str(e).lower()
+
+            # Check if it's a timeout error
+            if "timeout" in error_str or "timed out" in error_str:
+                wait_time = (2 ** attempt) + (random.random() * 0.1)  # Exponential backoff with jitter
+                print(f"Together AI API timeout (attempt {attempt + 1}/{max_retries}). Retrying in {wait_time:.1f}s...")
+                if attempt < max_retries - 1:
+                    time.sleep(wait_time)
+                else:
+                    raise Exception(f"Together AI API timeout after {max_retries} attempts: {e}")
+
+            # Check if it's a rate limit error (HTTP 429)
+            elif "429" in error_str or "rate limit" in error_str:
+                wait_time = (2 ** attempt) * 2 + (random.random() * 0.5)  # Longer wait for rate limits
+                print(f"Together AI rate limit hit (attempt {attempt + 1}/{max_retries}). Waiting {wait_time:.1f}s...")
+                if attempt < max_retries - 1:
+                    time.sleep(wait_time)
+                else:
+                    raise Exception(f"Together AI rate limit persists after {max_retries} attempts: {e}")
+
+            # Check if it's a server error (503 overloaded, 500, 502, 504)
+            elif "503" in error_str or "500" in error_str or "502" in error_str or "504" in error_str or "overloaded" in error_str or "not ready" in error_str:
+                # Much longer wait for server errors: 10s, 20s, 40s, 60s, 90s, 120s, etc.
+                wait_time = min((2 ** attempt) * 10, 180) + (random.random() * 5.0)
+                print(f"Together AI server error (attempt {attempt + 1}/{max_retries}). Waiting {wait_time:.1f}s... Error: {e}")
+                if attempt < max_retries - 1:
+                    time.sleep(wait_time)
+                else:
+                    raise Exception(f"Together AI server unavailable after {max_retries} attempts: {e}")
+
+            else:
+                # Non-retryable error (e.g., invalid API key, bad model name)
+                print(f"Together AI non-retryable error: {e}")
+                raise
+
+    # Should never reach here, but just in case
+    raise Exception("chat_completion failed to return a response")
 
 
 def _test01():

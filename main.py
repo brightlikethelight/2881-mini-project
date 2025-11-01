@@ -45,12 +45,14 @@ def main(my_args, llm_args, ric_args, knn_args, training_args, data_args):
         for dict_item in tqdm(js):
             if str(dict_item["id"]) + ".json" in os.listdir(io_results_dir):
                 continue
+            print(f"Processing query {dict_item['id']}...")
             response = ric_lm.generate(query=dict_item["input"])
             lm_output = response["lm_output"]
             retrieved_docs_str = response["retrieved_docs_str"]
             file_to_save = os.path.join(io_results_dir, str(dict_item["id"]) + ".json")
             with open(file_to_save, "w") as f:
                 json.dump({"lm_output": lm_output, "retrieved_docs_str": retrieved_docs_str}, f, indent=4)
+            print(f"✓ Completed query {dict_item['id']}")
     elif my_args.task == "eval":
         assert data_args.eval_input_dir is not None
         assert data_args.eval_output_dir is not None

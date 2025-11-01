@@ -21,7 +21,7 @@ class LM(object):
             self.device, self.device_name = get_device()
             print(f"Using device: {self.device_name}")
 
-            self.tokenizer = AutoTokenizer.from_pretrained(llm_args.hf_ckpt)
+            self.tokenizer = AutoTokenizer.from_pretrained(llm_args.hf_ckpt, use_fast=False)
             self.model = AutoModelForCausalLM.from_pretrained(llm_args.hf_ckpt, device_map='auto').eval()
     
             self.model.resize_token_embeddings(len(self.tokenizer))
@@ -43,8 +43,8 @@ class LM(object):
             assert llm_args.together_ckpt is not None
             support = ['llama', 'falcon', 'alpaca', 'vicuna', 'mistral', 'mixtral', 'solar', 'yi', 'platypus', 'capybara', 'wizardlm', 'qwen']
             assert any((s in llm_args.hf_ckpt.lower() and s in llm_args.together_ckpt.lower()) for s in support)
-            
-            self.tokenizer = AutoTokenizer.from_pretrained(llm_args.hf_ckpt)
+
+            self.tokenizer = AutoTokenizer.from_pretrained(llm_args.hf_ckpt, use_fast=False)
             
             self.generation_config = {
                 "model_ckpt": llm_args.together_ckpt,
