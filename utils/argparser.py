@@ -28,7 +28,7 @@ class LLMArguments:
     top_k: int = field(default=60)
     top_p: float = field(default=0.9)
     num_beams: int = field(default=1)
-    repetition_penalty: float = field(default=1.8)
+    repetition_penalty: float = field(default=1.0)
     stop_tokens: List[str] = field(default_factory=lambda : ["</s>", "[/INST]"])
 
 

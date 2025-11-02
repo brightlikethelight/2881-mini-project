@@ -21,15 +21,11 @@ OUTPUT_DIR="${OUTPUT_DIR:-./out}"
 # Format: Use "hf" API for local models, "together" for Together.ai API
 MODELS=(
     # 7b models
-    "meta-llama/Llama-2-7b-chat-hf|meta-llama/Llama-2-7b-chat-hf|hf|true"
-    # "mistralai/Mistral-7B-Instruct-v0.1|mistralai/Mistral-7B-Instruct-v0.1|together|true"
-    "upstage/SOLAR-10.7B-Instruct-v1.0|upstage/SOLAR-10.7B-Instruct-v1.0|together|true"
-
+    "meta-llama/Llama-3.1-8B-Instruct|meta-llama/Meta-Llama-3.1-8B-Instruct-Turbo|together|true"
+    "mistralai/Mistral-7B-Instruct-v0.1|mistralai/Mistral-7B-Instruct-v0.1|together|true"
+    "Qwen/Qwen2.5-7B-Instruct|Qwen/Qwen2.5-7B-Instruct-Turbo|together|true"
     # 13b models
-    "meta-llama/Llama-2-13b-chat-hf|meta-llama/Llama-2-13b-chat-hf|together|true"
-    # "lmsys/vicuna-13b-v1.5|lmsys/vicuna-13b-v1.5|hf|true"
-    # "mistralai/Mixtral-8x7B-Instruct-v0.1|mistralai/Mixtral-8x7B-Instruct-v0.1|together|true"
-    # "WizardLM/WizardLM-13B-V1.2|WizardLM/WizardLM-13B-V1.2|hf|true"
+    "mistralai/Mixtral-8x7B-Instruct-v0.1|mistralai/Mixtral-8x7B-Instruct-v0.1|together|true"
 )
 
 # Color codes for output

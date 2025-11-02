@@ -21,7 +21,12 @@ class LM(object):
             self.device, self.device_name = get_device()
             print(f"Using device: {self.device_name}")
 
-            self.tokenizer = AutoTokenizer.from_pretrained(llm_args.hf_ckpt, use_fast=False)
+            # Only use slow tokenizer for specific old models that need it
+            use_fast = True
+            if 'Mistral-7B-Instruct-v0.1' in llm_args.hf_ckpt:
+                use_fast = False
+
+            self.tokenizer = AutoTokenizer.from_pretrained(llm_args.hf_ckpt, use_fast=use_fast)
             self.model = AutoModelForCausalLM.from_pretrained(llm_args.hf_ckpt, device_map='auto').eval()
     
             self.model.resize_token_embeddings(len(self.tokenizer))
@@ -41,10 +46,16 @@ class LM(object):
             self.loss_fn = CrossEntropyLoss(reduction="none")
         elif my_args.api == 'together':
             assert llm_args.together_ckpt is not None
-            support = ['llama', 'falcon', 'alpaca', 'vicuna', 'mistral', 'mixtral', 'solar', 'yi', 'platypus', 'capybara', 'wizardlm', 'qwen']
+            support = ['llama', 'falcon', 'alpaca', 'vicuna', 'mistral', 'mixtral', 'solar', 'yi', 'platypus', 'capybara', 'wizardlm', 'qwen', 'typhoon', 'gemma']
             assert any((s in llm_args.hf_ckpt.lower() and s in llm_args.together_ckpt.lower()) for s in support)
 
-            self.tokenizer = AutoTokenizer.from_pretrained(llm_args.hf_ckpt, use_fast=False)
+            # Only use slow tokenizer for specific models that need it (Mistral v0.1)
+            # Newer models (Llama-3, Llama-4, Qwen2) require fast tokenizer
+            use_fast = True
+            if 'Mistral-7B-Instruct-v0.1' in llm_args.hf_ckpt:
+                use_fast = False
+
+            self.tokenizer = AutoTokenizer.from_pretrained(llm_args.hf_ckpt, use_fast=use_fast)
             
             self.generation_config = {
                 "model_ckpt": llm_args.together_ckpt,
@@ -52,6 +63,7 @@ class LM(object):
                 "temperature": llm_args.temperature,
                 "top_k": llm_args.top_k,
                 "top_p": llm_args.top_p,
+                "repetition_penalty": llm_args.repetition_penalty,
                 "stop": llm_args.stop_tokens
             }
             if llm_args.is_chat_model:
