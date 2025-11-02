@@ -1,5 +1,5 @@
-from modules.LM import LM   
-from modules.Index import BM25Index
+from modules.LM import LM
+from modules.Index import BM25Index, DenseIndex, HybridIndex
 from modules.knnlm_backbone import KNNWrapper, KNNSaver, DIST, KEY_TYPE
 
 import os
@@ -41,7 +41,7 @@ class RICLM(RALM):
         data_src_name = data_args.raw_data_dir.split("/")[-1]
         datastore_path = os.path.join(data_args.datastore_root, f"RIC_LM+{data_src_name}+{lm.model_name}+{ric_args.max_retrieval_seq_length}+{ric_args.ric_stride}")
         
-        #! index could be: BM25Index, VectorStoreIndex (from llama_index) 
+        #! index could be: BM25Index, DenseIndex, HybridIndex
         if ric_args.index_name == 'bm25':
             self.index = BM25Index(
                 tokenizer=self.lm.tokenizer,
@@ -50,8 +50,33 @@ class RICLM(RALM):
                 raw_data_dir=data_args.raw_data_dir,
                 datastore_dir=datastore_path,
             )
+        elif ric_args.index_name == 'dense':
+            # Extension 2: Dense retrieval
+            datastore_path_dense = datastore_path.replace('+bm25', '+dense')
+            self.index = DenseIndex(
+                tokenizer=self.lm.tokenizer,
+                dense_model=ric_args.dense_model,
+                faiss_index_type=ric_args.faiss_index_type,
+                max_retrieval_seq_length=ric_args.max_retrieval_seq_length,
+                stride=ric_args.ric_stride,
+                raw_data_dir=data_args.raw_data_dir,
+                datastore_dir=datastore_path_dense,
+            )
+        elif ric_args.index_name == 'hybrid':
+            # Extension 2: Hybrid retrieval
+            datastore_path_hybrid = datastore_path.replace('+bm25', '+hybrid')
+            self.index = HybridIndex(
+                tokenizer=self.lm.tokenizer,
+                dense_model=ric_args.dense_model,
+                faiss_index_type=ric_args.faiss_index_type,
+                hybrid_alpha=ric_args.hybrid_alpha,
+                max_retrieval_seq_length=ric_args.max_retrieval_seq_length,
+                stride=ric_args.ric_stride,
+                raw_data_dir=data_args.raw_data_dir,
+                datastore_dir=datastore_path_hybrid,
+            )
         else:
-            raise NotImplementedError
+            raise NotImplementedError(f"Unknown index type: {ric_args.index_name}")
         
     def generate(self, query: str, compute_generation_scores=False, compute_input_loss=False):
         def concat_docs(docs: List[str]):
@@ -60,9 +85,9 @@ class RICLM(RALM):
         
         docs: List[str] = self.index.find_most_relevant_k_documents(query=query, k=self.k)
         docs_str = concat_docs(docs)
-        
+
         lm_input = docs_str + "\n\n" + query
-        output_dict = self.lm.generate(lm_input, compute_generation_scores, compute_input_loss)
+        output_dict = self.lm.generate(lm_input, compute_generation_scores, compute_input_loss, retrieved_docs_str=docs_str)
         if compute_input_loss:
             docs_tokens = self.lm.tokenizer(docs_str + "\n\n", return_tensors="pt")["input_ids"]
             output_dict["token_loss_list"] = output_dict["token_loss_list"][docs_tokens.shape[1]:]

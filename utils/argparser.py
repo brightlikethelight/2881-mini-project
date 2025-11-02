@@ -31,6 +31,13 @@ class LLMArguments:
     repetition_penalty: float = field(default=1.8)
     stop_tokens: List[str] = field(default_factory=lambda : ["</s>", "[/INST]"])
 
+    # Extension 1: Prompt-level defenses
+    no_repeat_ngram_size: int = field(default=0)
+    encoder_no_repeat_ngram_size: int = field(default=0)
+    use_bad_words_defense: bool = field(default=False)
+    bad_words_ngram_size: int = field(default=4)
+    defense_system_prompt: str = field(default=None)
+
 
 @dataclass
 class RICLMArguments:
@@ -38,6 +45,11 @@ class RICLMArguments:
     max_retrieval_seq_length: int = field(default=256)
     ric_stride: int = field(default=128)
     index_name: str = field(default='bm25')
+
+    # Extension 2: Retriever surgery
+    dense_model: str = field(default='sentence-transformers/all-mpnet-base-v2')
+    faiss_index_type: str = field(default='Flat')
+    hybrid_alpha: float = field(default=0.5)
     
 
 @dataclass

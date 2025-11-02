@@ -11,6 +11,7 @@ class LM(object):
     def __init__(self, my_args, llm_args) -> None:
         self.api = my_args.api
         self.is_chat_model = llm_args.is_chat_model
+        self.llm_args = llm_args  # Store for defense mechanisms
         if llm_args.together_ckpt is not None:
             self.model_name = llm_args.together_ckpt.split("/")[-1]
         else:
@@ -23,9 +24,9 @@ class LM(object):
 
             self.tokenizer = AutoTokenizer.from_pretrained(llm_args.hf_ckpt, use_fast=False)
             self.model = AutoModelForCausalLM.from_pretrained(llm_args.hf_ckpt, device_map='auto').eval()
-    
+
             self.model.resize_token_embeddings(len(self.tokenizer))
-                
+
             self.generation_config = GenerationConfig(
                 max_new_tokens=llm_args.max_new_tokens,
                 do_sample=llm_args.do_sample,
@@ -34,6 +35,8 @@ class LM(object):
                 top_k=llm_args.top_k,
                 num_beams=llm_args.num_beams,
                 repetition_penalty=llm_args.repetition_penalty,
+                no_repeat_ngram_size=llm_args.no_repeat_ngram_size,
+                encoder_no_repeat_ngram_size=llm_args.encoder_no_repeat_ngram_size,
                 eos_token_id=self.tokenizer.eos_token_id,
                 pad_token_id=self.tokenizer.pad_token_id if self.tokenizer.pad_token_id is not None else self.tokenizer.eos_token_id,
             )
@@ -60,8 +63,41 @@ class LM(object):
             raise NotImplementedError
         
         assert self.tokenizer is not None
-        
-    def generate(self, lm_input: str, compute_generation_scores=False, compute_input_loss=False):
+
+    def _extract_bad_words_ids(self, text: str):
+        """Extract ngrams from text as bad_words_ids to prevent verbatim copying."""
+        if not text or not self.llm_args.use_bad_words_defense:
+            return None
+
+        try:
+            from nltk import ngrams
+        except ImportError:
+            print("Warning: NLTK not installed, skipping bad_words_ids extraction")
+            return None
+
+        # Tokenize the retrieved documents
+        tokens = self.tokenizer(text, add_special_tokens=False)['input_ids']
+
+        bad_words = []
+        n = self.llm_args.bad_words_ngram_size
+
+        # Extract ngrams of specified size
+        for ngram in ngrams(tokens, n):
+            bad_words.append(list(ngram))
+
+        # Remove duplicates while preserving order
+        seen = set()
+        unique_bad_words = []
+        for bw in bad_words:
+            bw_tuple = tuple(bw)
+            if bw_tuple not in seen:
+                seen.add(bw_tuple)
+                unique_bad_words.append(bw)
+
+        # Limit to avoid memory issues (HuggingFace recommends max 10000)
+        return unique_bad_words[:10000]
+
+    def generate(self, lm_input: str, compute_generation_scores=False, compute_input_loss=False, retrieved_docs_str=None):
         """input a string, output a string"""
 
         output_dict = dict()
@@ -69,14 +105,27 @@ class LM(object):
         if self.api == 'hf':
             # Use device from model instead of hardcoded CUDA
             device = next(self.model.parameters()).device
-            inputs = self.tokenizer(lm_input, return_tensors="pt")
+            
+            # Get model's maximum context length
+            max_length = getattr(self.model.config, 'max_position_embeddings', 1024)
+            # Reserve tokens for generation
+            max_input_length = max_length - self.llm_args.max_new_tokens
+            
+            # Tokenize with truncation to prevent context overflow
+            inputs = self.tokenizer(lm_input, return_tensors="pt", truncation=True, max_length=max_input_length)
             input_ids = inputs["input_ids"].to(device)  #! [1, *]
             assert input_ids.ndim == 2 and input_ids.shape[0] == 1
-            
+
+            # Extract bad_words_ids from retrieved documents if defense is enabled
+            bad_words_ids = None
+            if retrieved_docs_str is not None:
+                bad_words_ids = self._extract_bad_words_ids(retrieved_docs_str)
+
             with torch.no_grad():
                 generation_output = self.model.generate(
                     input_ids=input_ids,
                     generation_config=self.generation_config,
+                    bad_words_ids=bad_words_ids,
                     return_dict_in_generate=True,
                     output_scores=True,
                 )
