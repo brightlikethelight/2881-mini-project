@@ -1,0 +1,7 @@
+{
+  "timestamp": "2025-11-02T05:57:09.326540",
+  "model": "gpt2",
+  "api": "hf",
+  "num_prompts": 50,
+  "configs": {}
+}

@@ -1,0 +1,53 @@
+# Core dependencies - WITHOUT optional Pyserini extras
+# This avoids nmslib compilation issues on Apple Silicon
+# Sufficient for BM25-based retrieval
+
+# ================================
+# Transformers Ecosystem
+# ================================
+transformers==4.36.2
+datasets==2.16.1
+accelerate==0.25.0
+tokenizers==0.15.0
+huggingface-hub==0.20.2
+safetensors==0.4.1
+
+# ================================
+# Retrieval & Indexing (CORE ONLY)
+# ================================
+pyjnius==1.4.2  # Required for Pyserini Java bridge
+
+# Pyserini CORE dependencies (manually specified to avoid optional ones)
+# This skips: nmslib, spacy, openai, tiktoken, etc.
+Cython>=0.29.21
+lightgbm>=3.3.2
+scikit-learn>=0.22.1
+sentencepiece>=0.1.95
+
+# Install pyserini last (will use above deps, skip others)
+pyserini==0.23.0
+
+# ================================
+# Evaluation Metrics
+# ================================
+evaluate==0.4.1
+rouge-score==0.1.2
+sacrebleu==2.4.0
+bert-score==0.3.13
+nltk==3.8.1
+
+# ================================
+# Scientific Computing
+# ================================
+numpy==1.24.3
+scipy==1.11.4
+
+# ================================
+# Utilities
+# ================================
+tqdm==4.66.1
+wandb==0.16.2
+requests==2.31.0
+pyyaml==6.0.1
+packaging==23.2
+filelock==3.13.1

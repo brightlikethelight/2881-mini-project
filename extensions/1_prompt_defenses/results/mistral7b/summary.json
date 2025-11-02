@@ -1,0 +1,83 @@
+{
+  "timestamp": "2025-11-02T12:48:05.360219",
+  "model": "mistralai/Mistral-7B-Instruct-v0.3",
+  "api": "together",
+  "num_prompts": 50,
+  "configs": {
+    "baseline": {
+      "description": "No defense (baseline)",
+      "num_outputs": 50,
+      "output_path": "extensions/1_prompt_defenses/results/mistral7b/outputs/baseline/results.json"
+    },
+    "ngram_2": {
+      "description": "Block 2-gram repetition in output",
+      "num_outputs": 50,
+      "output_path": "extensions/1_prompt_defenses/results/mistral7b/outputs/ngram_2/results.json"
+    },
+    "ngram_3": {
+      "description": "Block 3-gram repetition in output",
+      "num_outputs": 50,
+      "output_path": "extensions/1_prompt_defenses/results/mistral7b/outputs/ngram_3/results.json"
+    },
+    "ngram_4": {
+      "description": "Block 4-gram repetition in output",
+      "num_outputs": 50,
+      "output_path": "extensions/1_prompt_defenses/results/mistral7b/outputs/ngram_4/results.json"
+    },
+    "ngram_5": {
+      "description": "Block 5-gram repetition in output",
+      "num_outputs": 50,
+      "output_path": "extensions/1_prompt_defenses/results/mistral7b/outputs/ngram_5/results.json"
+    },
+    "enc_ngram_2": {
+      "description": "Block 2-grams from input appearing in output",
+      "num_outputs": 50,
+      "output_path": "extensions/1_prompt_defenses/results/mistral7b/outputs/enc_ngram_2/results.json"
+    },
+    "enc_ngram_3": {
+      "description": "Block 3-grams from input appearing in output",
+      "num_outputs": 50,
+      "output_path": "extensions/1_prompt_defenses/results/mistral7b/outputs/enc_ngram_3/results.json"
+    },
+    "enc_ngram_4": {
+      "description": "Block 4-grams from input appearing in output",
+      "num_outputs": 50,
+      "output_path": "extensions/1_prompt_defenses/results/mistral7b/outputs/enc_ngram_4/results.json"
+    },
+    "enc_ngram_5": {
+      "description": "Block 5-grams from input appearing in output",
+      "num_outputs": 50,
+      "output_path": "extensions/1_prompt_defenses/results/mistral7b/outputs/enc_ngram_5/results.json"
+    },
+    "bad_words": {
+      "description": "Blacklist 4-grams from retrieved docs",
+      "num_outputs": 50,
+      "output_path": "extensions/1_prompt_defenses/results/mistral7b/outputs/bad_words/results.json"
+    },
+    "bad_words_5": {
+      "description": "Blacklist 5-grams from retrieved docs",
+      "num_outputs": 50,
+      "output_path": "extensions/1_prompt_defenses/results/mistral7b/outputs/bad_words_5/results.json"
+    },
+    "combined_light": {
+      "description": "Combined: ngram_3 + enc_ngram_3",
+      "num_outputs": 50,
+      "output_path": "extensions/1_prompt_defenses/results/mistral7b/outputs/combined_light/results.json"
+    },
+    "combined_medium": {
+      "description": "Combined: ngram_4 + enc_ngram_4",
+      "num_outputs": 50,
+      "output_path": "extensions/1_prompt_defenses/results/mistral7b/outputs/combined_medium/results.json"
+    },
+    "combined_strong": {
+      "description": "Combined: ngram_5 + enc_ngram_5",
+      "num_outputs": 50,
+      "output_path": "extensions/1_prompt_defenses/results/mistral7b/outputs/combined_strong/results.json"
+    },
+    "combined_max": {
+      "description": "Combined: all defenses at maximum strength",
+      "num_outputs": 50,
+      "output_path": "extensions/1_prompt_defenses/results/mistral7b/outputs/combined_max/results.json"
+    }
+  }
+}

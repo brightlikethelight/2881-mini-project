@@ -1,0 +1,7 @@
+{
+  "timestamp": "2025-11-02T11:43:21.146603",
+  "model": "mistralai/Mistral-7B-Instruct-v0.3",
+  "api": "together",
+  "num_prompts": 2,
+  "configs": {}
+}

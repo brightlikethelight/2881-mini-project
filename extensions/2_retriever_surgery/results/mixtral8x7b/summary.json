@@ -1,0 +1,198 @@
+{
+  "timestamp": "2025-11-02T15:01:44.864606",
+  "model": "mistralai/Mixtral-8x7B-Instruct-v0.1",
+  "api": "together",
+  "num_prompts": 50,
+  "total_configs": 27,
+  "configs": {
+    "chunk64_k2_bm25": {
+      "chunk_size": 64,
+      "top_k": 2,
+      "retriever": "bm25",
+      "num_outputs": 50,
+      "output_path": "extensions/2_retriever_surgery/results/mixtral8x7b/outputs/chunk64_k2_bm25/results.json"
+    },
+    "chunk64_k2_dense": {
+      "chunk_size": 64,
+      "top_k": 2,
+      "retriever": "dense",
+      "num_outputs": 50,
+      "output_path": "extensions/2_retriever_surgery/results/mixtral8x7b/outputs/chunk64_k2_dense/results.json"
+    },
+    "chunk64_k2_hybrid": {
+      "chunk_size": 64,
+      "top_k": 2,
+      "retriever": "hybrid",
+      "num_outputs": 50,
+      "output_path": "extensions/2_retriever_surgery/results/mixtral8x7b/outputs/chunk64_k2_hybrid/results.json"
+    },
+    "chunk64_k4_bm25": {
+      "chunk_size": 64,
+      "top_k": 4,
+      "retriever": "bm25",
+      "num_outputs": 50,
+      "output_path": "extensions/2_retriever_surgery/results/mixtral8x7b/outputs/chunk64_k4_bm25/results.json"
+    },
+    "chunk64_k4_dense": {
+      "chunk_size": 64,
+      "top_k": 4,
+      "retriever": "dense",
+      "num_outputs": 50,
+      "output_path": "extensions/2_retriever_surgery/results/mixtral8x7b/outputs/chunk64_k4_dense/results.json"
+    },
+    "chunk64_k4_hybrid": {
+      "chunk_size": 64,
+      "top_k": 4,
+      "retriever": "hybrid",
+      "num_outputs": 50,
+      "output_path": "extensions/2_retriever_surgery/results/mixtral8x7b/outputs/chunk64_k4_hybrid/results.json"
+    },
+    "chunk64_k8_bm25": {
+      "chunk_size": 64,
+      "top_k": 8,
+      "retriever": "bm25",
+      "num_outputs": 50,
+      "output_path": "extensions/2_retriever_surgery/results/mixtral8x7b/outputs/chunk64_k8_bm25/results.json"
+    },
+    "chunk64_k8_dense": {
+      "chunk_size": 64,
+      "top_k": 8,
+      "retriever": "dense",
+      "num_outputs": 50,
+      "output_path": "extensions/2_retriever_surgery/results/mixtral8x7b/outputs/chunk64_k8_dense/results.json"
+    },
+    "chunk64_k8_hybrid": {
+      "chunk_size": 64,
+      "top_k": 8,
+      "retriever": "hybrid",
+      "num_outputs": 50,
+      "output_path": "extensions/2_retriever_surgery/results/mixtral8x7b/outputs/chunk64_k8_hybrid/results.json"
+    },
+    "chunk128_k2_bm25": {
+      "chunk_size": 128,
+      "top_k": 2,
+      "retriever": "bm25",
+      "num_outputs": 50,
+      "output_path": "extensions/2_retriever_surgery/results/mixtral8x7b/outputs/chunk128_k2_bm25/results.json"
+    },
+    "chunk128_k2_dense": {
+      "chunk_size": 128,
+      "top_k": 2,
+      "retriever": "dense",
+      "num_outputs": 50,
+      "output_path": "extensions/2_retriever_surgery/results/mixtral8x7b/outputs/chunk128_k2_dense/results.json"
+    },
+    "chunk128_k2_hybrid": {
+      "chunk_size": 128,
+      "top_k": 2,
+      "retriever": "hybrid",
+      "num_outputs": 50,
+      "output_path": "extensions/2_retriever_surgery/results/mixtral8x7b/outputs/chunk128_k2_hybrid/results.json"
+    },
+    "chunk128_k4_bm25": {
+      "chunk_size": 128,
+      "top_k": 4,
+      "retriever": "bm25",
+      "num_outputs": 50,
+      "output_path": "extensions/2_retriever_surgery/results/mixtral8x7b/outputs/chunk128_k4_bm25/results.json"
+    },
+    "chunk128_k4_dense": {
+      "chunk_size": 128,
+      "top_k": 4,
+      "retriever": "dense",
+      "num_outputs": 50,
+      "output_path": "extensions/2_retriever_surgery/results/mixtral8x7b/outputs/chunk128_k4_dense/results.json"
+    },
+    "chunk128_k4_hybrid": {
+      "chunk_size": 128,
+      "top_k": 4,
+      "retriever": "hybrid",
+      "num_outputs": 50,
+      "output_path": "extensions/2_retriever_surgery/results/mixtral8x7b/outputs/chunk128_k4_hybrid/results.json"
+    },
+    "chunk128_k8_bm25": {
+      "chunk_size": 128,
+      "top_k": 8,
+      "retriever": "bm25",
+      "num_outputs": 50,
+      "output_path": "extensions/2_retriever_surgery/results/mixtral8x7b/outputs/chunk128_k8_bm25/results.json"
+    },
+    "chunk128_k8_dense": {
+      "chunk_size": 128,
+      "top_k": 8,
+      "retriever": "dense",
+      "num_outputs": 50,
+      "output_path": "extensions/2_retriever_surgery/results/mixtral8x7b/outputs/chunk128_k8_dense/results.json"
+    },
+    "chunk128_k8_hybrid": {
+      "chunk_size": 128,
+      "top_k": 8,
+      "retriever": "hybrid",
+      "num_outputs": 50,
+      "output_path": "extensions/2_retriever_surgery/results/mixtral8x7b/outputs/chunk128_k8_hybrid/results.json"
+    },
+    "chunk256_k2_bm25": {
+      "chunk_size": 256,
+      "top_k": 2,
+      "retriever": "bm25",
+      "num_outputs": 50,
+      "output_path": "extensions/2_retriever_surgery/results/mixtral8x7b/outputs/chunk256_k2_bm25/results.json"
+    },
+    "chunk256_k2_dense": {
+      "chunk_size": 256,
+      "top_k": 2,
+      "retriever": "dense",
+      "num_outputs": 50,
+      "output_path": "extensions/2_retriever_surgery/results/mixtral8x7b/outputs/chunk256_k2_dense/results.json"
+    },
+    "chunk256_k2_hybrid": {
+      "chunk_size": 256,
+      "top_k": 2,
+      "retriever": "hybrid",
+      "num_outputs": 50,
+      "output_path": "extensions/2_retriever_surgery/results/mixtral8x7b/outputs/chunk256_k2_hybrid/results.json"
+    },
+    "chunk256_k4_bm25": {
+      "chunk_size": 256,
+      "top_k": 4,
+      "retriever": "bm25",
+      "num_outputs": 50,
+      "output_path": "extensions/2_retriever_surgery/results/mixtral8x7b/outputs/chunk256_k4_bm25/results.json"
+    },
+    "chunk256_k4_dense": {
+      "chunk_size": 256,
+      "top_k": 4,
+      "retriever": "dense",
+      "num_outputs": 50,
+      "output_path": "extensions/2_retriever_surgery/results/mixtral8x7b/outputs/chunk256_k4_dense/results.json"
+    },
+    "chunk256_k4_hybrid": {
+      "chunk_size": 256,
+      "top_k": 4,
+      "retriever": "hybrid",
+      "num_outputs": 50,
+      "output_path": "extensions/2_retriever_surgery/results/mixtral8x7b/outputs/chunk256_k4_hybrid/results.json"
+    },
+    "chunk256_k8_bm25": {
+      "chunk_size": 256,
+      "top_k": 8,
+      "retriever": "bm25",
+      "num_outputs": 50,
+      "output_path": "extensions/2_retriever_surgery/results/mixtral8x7b/outputs/chunk256_k8_bm25/results.json"
+    },
+    "chunk256_k8_dense": {
+      "chunk_size": 256,
+      "top_k": 8,
+      "retriever": "dense",
+      "num_outputs": 50,
+      "output_path": "extensions/2_retriever_surgery/results/mixtral8x7b/outputs/chunk256_k8_dense/results.json"
+    },
+    "chunk256_k8_hybrid": {
+      "chunk_size": 256,
+      "top_k": 8,
+      "retriever": "hybrid",
+      "num_outputs": 50,
+      "output_path": "extensions/2_retriever_surgery/results/mixtral8x7b/outputs/chunk256_k8_hybrid/results.json"
+    }
+  }
+}

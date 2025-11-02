@@ -1,0 +1,30 @@
+{
+  "timestamp": "2025-11-02T06:13:47.607877",
+  "model": "gpt2",
+  "api": "hf",
+  "num_prompts": 2,
+  "total_configs": 3,
+  "configs": {
+    "chunk128_k4_bm25": {
+      "chunk_size": 128,
+      "top_k": 4,
+      "retriever": "bm25",
+      "num_outputs": 2,
+      "output_path": "extensions/2_retriever_surgery/results/outputs/chunk128_k4_bm25/results.json"
+    },
+    "chunk256_k8_dense": {
+      "chunk_size": 256,
+      "top_k": 8,
+      "retriever": "dense",
+      "num_outputs": 2,
+      "output_path": "extensions/2_retriever_surgery/results/outputs/chunk256_k8_dense/results.json"
+    },
+    "chunk64_k2_hybrid": {
+      "chunk_size": 64,
+      "top_k": 2,
+      "retriever": "hybrid",
+      "num_outputs": 2,
+      "output_path": "extensions/2_retriever_surgery/results/outputs/chunk64_k2_hybrid/results.json"
+    }
+  }
+}
