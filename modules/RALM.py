@@ -1,11 +1,13 @@
 from modules.LM import LM   
 from modules.Index import BM25Index
 from modules.knnlm_backbone import KNNWrapper, KNNSaver, DIST, KEY_TYPE
+from modules.summarizer import get_summarizer, SummaryConfig
 
 import os
 import json
 import math
-from typing import List, Dict
+import dataclasses
+from typing import List, Dict, Optional, Literal
 from transformers import (
     Trainer,
     default_data_collator,
@@ -20,6 +22,18 @@ logger = logging.getLogger(__name__)
 padding_index = -100
 
 
+@dataclasses.dataclass
+class SummarizationConfig:
+    """Configuration for document summarization."""
+    enabled: bool = False
+    method: Literal['extractive', 'abstractive'] = 'extractive'
+    compression_ratio: float = 0.3
+    model_name: Optional[str] = None  # Only used for abstractive summarization
+    api_key: Optional[str] = None     # API key for abstractive summarization
+    max_tokens: int = 2000            # Max tokens for API calls
+
+
+
 class RALM(object):
     def __init__(self, lm: LM) -> None:
         self.lm = lm
@@ -32,10 +46,22 @@ class RALM(object):
 
 
 class RICLM(RALM):
-    def __init__(self, ric_args, data_args, lm: LM) -> None:
+    def __init__(self, ric_args, data_args, lm: LM, summarization_config: Optional[SummarizationConfig] = None) -> None:
         super().__init__(lm)
         
         self.k = ric_args.k_for_ric
+        
+        # Initialize summarization if enabled
+        self.summarization_config = summarization_config or SummarizationConfig()
+        self.summarizer = None
+        if self.summarization_config.enabled:
+            self.summarizer = get_summarizer(SummaryConfig(
+                method=self.summarization_config.method,
+                compression_ratio=self.summarization_config.compression_ratio,
+                model_name=self.summarization_config.model_name,
+                api_key=self.summarization_config.api_key,
+                max_tokens=self.summarization_config.max_tokens
+            ))
         
         assert data_args.raw_data_dir is not None
         data_src_name = data_args.raw_data_dir.split("/")[-1]
@@ -52,28 +78,62 @@ class RICLM(RALM):
             )
         else:
             raise NotImplementedError
+            
+    def _summarize_docs(self, docs: List[str]) -> List[str]:
+        """Apply summarization to a list of documents if summarization is enabled."""
+        if not self.summarizer:
+            return docs
+            
+        summarized_docs = []
+        for doc in docs:
+            try:
+                summarized = self.summarizer.summarize(
+                    doc,
+                    compression_ratio=self.summarization_config.compression_ratio
+                )
+                summarized_docs.append(summarized)
+            except Exception as e:
+                logger.warning(f"Error summarizing document: {e}")
+                summarized_docs.append(doc)  # Fallback to original doc on error
+                
+        return summarized_docs
         
     def generate(self, query: str, compute_generation_scores=False, compute_input_loss=False):
         def concat_docs(docs: List[str]):
-            docs_str = "\n\n".join(docs)
-            return docs_str
+            # Apply summarization if enabled
+            if hasattr(self, 'summarizer') and self.summarizer:
+                docs = self._summarize_docs(docs)
+            return "\n\n".join(docs)
         
+        # Retrieve documents
         docs: List[str] = self.index.find_most_relevant_k_documents(query=query, k=self.k)
+        
+        # Apply summarization and join documents
         docs_str = concat_docs(docs)
         
+        # Prepare input for language model
         lm_input = docs_str + "\n\n" + query
-        output_dict = self.lm.generate(lm_input, compute_generation_scores, compute_input_loss)
-        if compute_input_loss:
-            docs_tokens = self.lm.tokenizer(docs_str + "\n\n", return_tensors="pt")["input_ids"]
-            output_dict["token_loss_list"] = output_dict["token_loss_list"][docs_tokens.shape[1]:]
-            output_dict["total_input_loss"] = sum(output_dict["token_loss_list"]) / len(output_dict["token_loss_list"])
-            output_dict["token_ppl_list"] = output_dict["token_ppl_list"][docs_tokens.shape[1]:]
-            output_dict["total_input_ppl"] = math.exp(output_dict["total_input_loss"])
         
-        output_dict["retrieved_docs"] = docs
-        output_dict["retrieved_docs_str"] = docs_str
+        # Generate response
+        if compute_generation_scores:
+            output = self.lm.generate(
+                lm_input,
+                compute_generation_scores=compute_generation_scores,
+                compute_input_loss=compute_input_loss
+            )
+        else:
+            output = self.lm.generate(lm_input)
+            
+        # Return results with additional context for debugging
+        result = {
+            "lm_output": output,
+            "retrieved_docs": docs,
+            "summarization_enabled": hasattr(self, 'summarizer') and self.summarizer is not None,
+            "input_length": len(lm_input),
+            "retrieved_docs_str": docs_str
+        }
         
-        return output_dict
+        return result
     
     def finish(self):
         return 
