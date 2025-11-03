@@ -1,4 +1,4 @@
-from modules.LM import LM   
+from modules.LM import LM
 from modules.Index import BM25Index
 from modules.knnlm_backbone import KNNWrapper, KNNSaver, DIST, KEY_TYPE
 

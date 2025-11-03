@@ -1,6 +1,6 @@
 from utils.argparser import get_args
 from utils.helpers import fix_seeds, read_json
-from modules.LM import LM   
+from modules.LM import LM
 from modules.RALM import RICLM
 from modules.Evaluator import Evaluator
 
@@ -8,7 +8,6 @@ import os
 import json
 from tqdm import tqdm
 import warnings
-import re
 warnings.filterwarnings("ignore")
 
 

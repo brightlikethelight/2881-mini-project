@@ -1,5 +1,6 @@
 from typing import List, Dict
-import time, json, os, requests
+import json
+import os
 
 # Optional Together AI dependency - only fails if actually used
 try:
@@ -56,8 +57,8 @@ def text_completion(prompt, model_ckpt, max_tokens=256, temperature=0.8, top_k=4
                 stop=stop,
             )
             break
-        except:
-            print("Together AI API failed. Retrying...")
+        except Exception as e:
+            print(f"Together AI API failed: {str(e)}. Retrying...")
             
     return response.choices[0].text
 
