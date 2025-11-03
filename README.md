@@ -1,3 +1,5 @@
+# NOTE: Please check the MD files in results/comprehensive_comparison for summaries and methodology for the summarization extension!
+
 # RAG Privacy: Copy-Out Attack Reproduction
 
 [![Python 3.10+](https://img.shields.io/badge/python-3.10+-blue.svg)](https://www.python.org/downloads/)
